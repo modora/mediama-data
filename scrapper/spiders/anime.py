@@ -128,7 +128,7 @@ class NyaaSpider(scrapy.Spider):
         filenames = [
             filename
             for filename in response.xpath(
-                "/html/body/div/div[3]/div[2]/ul//li/text()"
+                "//div[contains(@class,"torrent-file-list")]//li/text()"
             ).getall()
         ]
 
