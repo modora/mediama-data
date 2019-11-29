@@ -29,7 +29,7 @@ class FilePipeline:
 
     def close_spider(self, spider):
         with open(self.export_file, 'r') as f:
-            sorted_names = sorted(f.readlines()[1:])
+            sorted_names = sorted(set(f.readlines()[1:]))
         with open(self.export_file, 'w') as f:
             f.write("series,filename\n")
             f.write(sorted_names)
