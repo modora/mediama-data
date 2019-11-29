@@ -11,11 +11,14 @@ DATA_DIR = Path(__file__).parent.joinpath("../data").resolve()
 class FilePipeline:
     @staticmethod
     def clean_filelist(filelist):
+        VALID_VIDEO_EXT = ('.mkv', '.mp4', '.avi', '.mov', '.wmv', '.flv')
+
         return list(
             seq(filelist)
             .map(strip_string)
             .filter_not(is_empty_string)
             .filter(is_video_file_from_ext)
+            .filter(lambda filename: filename.endswith(VALID_VIDEO_EXT))
         )
 
     def open_spider(self, spider):
