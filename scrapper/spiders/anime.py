@@ -105,21 +105,21 @@ class NyaaSpider(scrapy.Spider):
                 response.urljoin(next_page_url), self.parse_mal_popular
             )
 
-    def parse_search(self, response, series=None):
+    def parse_search(self, response, **kwargs):
         # This function parses the search results
 
         # Go the the torrent page for some title
         for href in response.xpath(
             "//tr/td[2]/a[1]/@href"
         ).getall():
-            yield scrapy.Request(response.urljoin(href), self.parse_torrent, cb_kwargs={'series': series})
+            yield scrapy.Request(response.urljoin(href), self.parse_torrent, cb_kwargs=kwargs)
 
         next_page_url = response.xpath(
             '//li[@class="next"]/a/@href'
         ).get()
-        yield scrapy.Request(response.urljoin(next_page_url), self.parse_search, cb_kwargs={'series': series})
+        yield scrapy.Request(response.urljoin(next_page_url), self.parse_search, cb_kwargs=kwargs)
 
-    def parse_torrent(self, response, series=None):
+    def parse_torrent(self, response, **kwargs):
         # This function parses torrent pages
 
         # nyaa shows the filelist so no need to download and parse torrent, we
@@ -132,4 +132,4 @@ class NyaaSpider(scrapy.Spider):
             ).getall()
         ]
 
-        yield {"filenames": filenames, "series": series}
+        yield {"filenames": filenames, **kwargs}
