@@ -6,6 +6,7 @@ from functional import seq
 
 from .helpers import *
 
+
 class CSVPipeline:
     fields = ["series", "source", "filename"]  # item fields to export
 
@@ -15,10 +16,16 @@ class CSVPipeline:
         crawler.signals.connect(pipeline.spider_opened, scrapy.signals.spider_opened)
         crawler.signals.connect(pipeline.spider_closed, scrapy.signals.spider_closed)
         return pipeline
-    
+
     def spider_opened(self, spider):
-        filepath = spider.settings.get('DATA_DIR').joinpath(f'{spider.name}.csv')
-        self.file = open(filepath, 'a+b')
+        filepath = spider.settings.get("DATA_DIR").joinpath(f"{spider.name}.csv")
+
+        # if we are restarting the crawl, then reset the export file as well
+        self.file = (
+            open(filepath, "a+b")
+            if spider.settings.get("DELTAFETCH_RESET", 0) == 0
+            else open(filepath, "w+b")
+        )
         self.exporter = CsvItemExporter(self.file, fields_to_export=self.fields)
         self.exporter.start_exporting()
 
@@ -27,12 +34,12 @@ class CSVPipeline:
         self.file.close()
 
     def process_item(self, item, spider):
-        filenames = item.get('filenames', [])
+        filenames = item.get("filenames", [])
         data = item.copy()
-        if 'filenames' in data:
-            del data['filenames']
+        if "filenames" in data:
+            del data["filenames"]
         for filename in filenames:
-            data['filename'] = filename
+            data["filename"] = filename
             self.exporter.export_item(data)
         return item
 
@@ -40,7 +47,7 @@ class CSVPipeline:
 class FilePipeline:
     @staticmethod
     def clean_filelist(filelist):
-        VALID_VIDEO_EXT = ('.mkv', '.mp4', '.avi', '.mov', '.wmv', '.flv')
+        VALID_VIDEO_EXT = (".mkv", ".mp4", ".avi", ".mov", ".wmv", ".flv")
 
         return (
             seq(filelist)
@@ -57,7 +64,7 @@ class FilePipeline:
 
             # export only if there are valid filenames after cleaning
             if filenames:
-                item['filenames'] = filenames
+                item["filenames"] = filenames
             else:
                 raise scrapy.exceptions.DropItem("No valid files found")
         else:
