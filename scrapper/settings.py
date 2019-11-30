@@ -15,7 +15,7 @@ ITEM_PIPELINES = {
     'scrapper.pipelines.CSVPipeline': 1000
 }
 
-DATA_DIR = ROOT_DIR / 'tmp'
+DATA_DIR = ROOT_DIR / 'data'
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 SPIDER_MIDDLEWARES = {
