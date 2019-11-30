@@ -18,6 +18,10 @@ ITEM_PIPELINES = {
 DATA_DIR = ROOT_DIR / 'data'
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 
+LOG_DIR = ROOT_DIR / 'logs'
+LOG_DIR.mkdir(parents=True, exist_ok=True)
+LOG_FILE = LOG_DIR / 'scrapy.log'
+
 SPIDER_MIDDLEWARES = {
     'scrapy_deltafetch.DeltaFetch': 100,
 }
