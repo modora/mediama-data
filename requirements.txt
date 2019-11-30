@@ -1,4 +1,5 @@
 scrapy
+scrapy-deltafetch
 black
 rope
 pyfunctional
