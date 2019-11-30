@@ -90,7 +90,7 @@ class NyaaSpider(scrapy.Spider):
             yield scrapy.Request(
                 self.format_url(query=series, category="anime english-translated"),
                 self.parse_search,
-                cb_kwargs={"series": series}
+                cb_kwargs={"series": series},
             )
 
         self.mal_results += 50
@@ -109,15 +109,20 @@ class NyaaSpider(scrapy.Spider):
         # This function parses the search results
 
         # Go the the torrent page for some title
-        for href in response.xpath(
-            "//tr/td[2]/a[1]/@href"
-        ).getall():
-            yield scrapy.Request(response.urljoin(href), self.parse_torrent, cb_kwargs=kwargs)
+        for source, href in zip(
+            response.xpath("//tr/td[2]/a[last()]/text()").getall(),
+            response.xpath("//tr/td[2]/a[last()]/@href").getall(),
+        ):
+            yield scrapy.Request(
+                response.urljoin(href),
+                self.parse_torrent,
+                cb_kwargs={"source": source, **kwargs},
+            )
 
-        next_page_url = response.xpath(
-            '//li[@class="next"]/a/@href'
-        ).get()
-        yield scrapy.Request(response.urljoin(next_page_url), self.parse_search, cb_kwargs=kwargs)
+        next_page_url = response.xpath('//li[@class="next"]/a/@href').get()
+        yield scrapy.Request(
+            response.urljoin(next_page_url), self.parse_search, cb_kwargs=kwargs
+        )
 
     def parse_torrent(self, response, **kwargs):
         # This function parses torrent pages

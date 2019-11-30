@@ -1,11 +1,40 @@
 from pathlib import Path
 
 import scrapy
+from scrapy.exporters import CsvItemExporter
 from functional import seq
 
 from .helpers import *
 
-DATA_DIR = Path(__file__).parent.joinpath("../data").resolve()
+class CSVPipeline:
+    fields = ["series", "source", "filename"]  # item fields to export
+
+    @classmethod
+    def from_crawler(cls, crawler):
+        pipeline = cls()
+        crawler.signals.connect(pipeline.spider_opened, scrapy.signals.spider_opened)
+        crawler.signals.connect(pipeline.spider_closed, scrapy.signals.spider_closed)
+        return pipeline
+    
+    def spider_opened(self, spider):
+        filepath = spider.settings.get('ROOT_DIR').joinpath(f'data/{spider.name}.csv')
+        self.file = open(filepath, 'a+b')
+        self.exporter = CsvItemExporter(self.file, fields_to_export=self.fields)
+        self.exporter.start_exporting()
+
+    def spider_closed(self, spider):
+        self.exporter.finish_exporting()
+        self.file.close()
+
+    def process_item(self, item, spider):
+        filenames = item.get('filenames', [])
+        data = item.copy()
+        if 'filenames' in data:
+            del data['filenames']
+        for filename in filenames:
+            data['filename'] = filename
+            self.exporter.export_item(data)
+        return item
 
 
 class FilePipeline:
@@ -13,7 +42,7 @@ class FilePipeline:
     def clean_filelist(filelist):
         VALID_VIDEO_EXT = ('.mkv', '.mp4', '.avi', '.mov', '.wmv', '.flv')
 
-        return list(
+        return (
             seq(filelist)
             .map(strip_string)
             .filter_not(is_empty_string)
@@ -21,37 +50,18 @@ class FilePipeline:
             .filter(lambda filename: filename.endswith(VALID_VIDEO_EXT))
         )
 
-    def open_spider(self, spider):
-        self.export_file = DATA_DIR.joinpath(f"{spider.name}.csv")
-
-        with open(self.export_file, "w") as f:
-            f.write("series,filename\n")
-
-    def close_spider(self, spider):
-        with open(self.export_file, 'r') as f:
-            sorted_names = sorted(set(f.readlines()[1:]))
-        with open(self.export_file, 'w') as f:
-            f.write("series,filename\n")
-            f.write(sorted_names)
-
     def process_item(self, item, spider):
-        # Write all results to the data/{spider_name}.csv
-
         if item.get("filenames"):
             # Clean the filenames and remove any results with no name
             filenames = self.clean_filelist(item.get("filenames"))
 
-            # only write to export_file if there are valid filenames after 
-            # cleaning
-            if len(filenames) > 0:
-                with open(self.export_file, "a") as f:
-                    for filename in filenames:
-                        series = item.get('series', '')
-                        if series is None:
-                            series = ''
-                        line = f'{series},{filename}\n'
-                        f.write(line)
+            # export only if there are valid filenames after cleaning
+            if filenames:
+                item['filenames'] = filenames
+            else:
+                raise scrapy.exceptions.DropItem("No valid files found")
         else:
             raise scrapy.exceptions.DropItem(
                 f"{spider.name}: Missing filenames in {item}"
             )
+        return item
