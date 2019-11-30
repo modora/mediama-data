@@ -19,6 +19,15 @@ class CSVPipeline:
 
     def spider_opened(self, spider):
         filepath = spider.settings.get("DATA_DIR").joinpath(f"{spider.name}.csv")
+        
+        # Check to see if we need to write the header line as well. Here, we
+        # read whether the first line of the file has content. If it does, then
+        # assume that its the header.
+        try:
+            with open(filepath, 'r') as f:
+                include_headers_line = not bool(f.readline())
+        except FileNotFoundError:
+            include_headers_line = True
 
         # if we are restarting the crawl, then reset the export file as well
         self.file = (
@@ -27,10 +36,6 @@ class CSVPipeline:
             else open(filepath, "w+b")
         )
         
-        # Create a header if a file does not have one. Write-only should always
-        # create one. Append should create only if there is nothing in the first
-        # line. Thus checking the first line in both cases should work.
-        include_headers_line = not bool(self.file.readline())
         self.exporter = CsvItemExporter(
             self.file,
             include_headers_line=include_headers_line,
