@@ -30,6 +30,8 @@
 	"extensions": [
 		"ms-python.python",
 		"eamodio.gitlens",
-		"stkb.rewrap"
+		"stkb.rewrap",
+		"grapecity.gc-excelviewer",
+		"mechatroner.rainbow-csv"
 	]
 }
