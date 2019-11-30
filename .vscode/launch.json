@@ -10,7 +10,7 @@
 			"request": "launch",
 			"program": "${workspaceFolder}/runner.py",
 			"args": ["nyaa"],
-			"console": "integratedTerminal"
+			"console": "internalConsole"
 		}
 	]
 }
