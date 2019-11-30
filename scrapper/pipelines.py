@@ -23,7 +23,7 @@ class CSVPipeline:
         # if we are restarting the crawl, then reset the export file as well
         self.file = (
             open(filepath, "a+b")
-            if spider.settings.get("DELTAFETCH_RESET", 0) == 0 and spider.settings.get("DELTAFETCH_ENABLED", 1) == 1
+            if not spider.settings.get("DELTAFETCH_RESET", False) and spider.settings.get("DELTAFETCH_ENABLED", True)
             else open(filepath, "w+b")
         )
         
