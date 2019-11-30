@@ -10,7 +10,7 @@ def main(spiders: list):
                 ["scrapy", "crawl"]
                 + spiders
                 + ["-s", "DELTAFETCH_ENABLED=0"]
-            )  # settings
+            )
         )
     except SystemExit:
         pass
