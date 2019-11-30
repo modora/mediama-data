@@ -99,7 +99,7 @@ class NyaaSpider(scrapy.Spider):
         # MAL shows 50 results per page so offset accordingly
         if self.mal_results < self.MAL_LIMIT:
             next_page_url = response.xpath(
-                '//div[contains(@class,"pagination")]/a[1]/@href'
+                '//div[contains(@class,"pagination")]/a[last()]/@href'
             ).get()
             yield scrapy.Request(
                 response.urljoin(next_page_url), self.parse_mal_popular
