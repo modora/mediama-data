@@ -9,8 +9,7 @@ def main(spiders: list):
             execute(
                 ["scrapy", "crawl"]
                 + spiders
-                + ["-a", "deltafetch_reset=1"]  # args
-                + ["-s", "DELTAFETCH_DIR=/tmp/deltafetch"]
+                + ["-s", "DELTAFETCH_ENABLED=0"]
             )  # settings
         )
     except SystemExit:
