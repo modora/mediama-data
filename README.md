@@ -1,20 +1,27 @@
 # Overview
-This repository contains scripts to gather sample data used for mediama. The ```scripts/``` directory contains the webscrappers to generate results found in ```data/```. For development purposes, the data found in ```data/``` should be sufficient. If you want the most up-to-date information, run `scripts/index.py`
+This repository contains scripts to gather sample data used for mediama. For
+development purposes, the data found in `data/` should be sufficient. If you
+want the most up-to-date information, run `scrapy crawl <list of spiders>` where
+the list is separated by spaces. By default, scrapes are incremented from the
+previous crawl. For a full crawl, pass in the argument `-a deltafetch_reset=1`
 
 # Data
-The only data collected is filenames from multiple sources. All data files are formatted as csv files with simply a filename header.
+All data files are formatted as csv files with the format show below. The source
+column represents the name of the torrent file.
 
 ```
-filename
-[WhyNot] Steins;Gate - 01 [BD 720p AAC][5CFFC1C7].mkv
-[WhyNot] Steins;Gate - 02 [BD 720p AAC][C32D5ABE].mkv
-[WhyNot] Steins;Gate - 03 [BD 720p AAC][6F55BDF5].mkv
+series,source,filename
+Steins;Gate,[WhyNot] Steins;Gate [BD 720p AAC],[WhyNot] Steins;Gate - 01 [BD 720p AAC][5CFFC1C7].mkv
+Steins;Gate,[WhyNot] Steins;Gate [BD 720p AAC],[WhyNot] Steins;Gate - 02 [BD 720p AAC][C32D5ABE].mkv
+Steins;Gate,[WhyNot] Steins;Gate [BD 720p AAC],[WhyNot] Steins;Gate - 03 [BD 720p AAC][6F55BDF5].mkv
 ...
-[WhyNot] Steins;Gate - 25 [BD 720p AAC][5AAF0DA8].mkv
+Steins;Gate,[WhyNot] Steins;Gate [BD 720p AAC],[WhyNot] Steins;Gate - 25 [BD 720p AAC][5AAF0DA8].mkv
 ```
 
 # Sources
-Currently, all data is collected by scrapping torrent trackers and parsing torrent files. Torrents are encoded using bencode. Here are some examples of decoded torrent files with the SHA-1 hashes for pieces truncated:
+Currently, all data is collected by scrapping torrent trackers and parsing
+torrent files. Torrents are encoded using bencode. Here are some examples of
+decoded torrent files with the SHA-1 hashes for pieces truncated:
 
 ```json
 {
@@ -100,3 +107,8 @@ This table lists all the sources for the following media
 | Media | Source |
 | --- | --- |
 | Anime | <ul><li>nyaa.si</li></ul> |
+
+## Nyaa
+Nyaa does not have an official API so data is scraped from the web API. The
+query passed into the search API are the top 1000 series listed on MAL and all
+search results are parsed for their filelists.
