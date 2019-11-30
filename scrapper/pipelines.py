@@ -17,7 +17,7 @@ class CSVPipeline:
         return pipeline
     
     def spider_opened(self, spider):
-        filepath = spider.settings.get('ROOT_DIR').joinpath(f'data/{spider.name}.csv')
+        filepath = spider.settings.get('DATA_DIR').joinpath(f'{spider.name}.csv')
         self.file = open(filepath, 'a+b')
         self.exporter = CsvItemExporter(self.file, fields_to_export=self.fields)
         self.exporter.start_exporting()

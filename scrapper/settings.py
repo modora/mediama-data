@@ -15,12 +15,16 @@ ITEM_PIPELINES = {
     'scrapper.pipelines.CSVPipeline': 1000
 }
 
+DATA_DIR = ROOT_DIR / 'tmp'
+DATA_DIR.mkdir(parents=True, exist_ok=True)
+
 SPIDER_MIDDLEWARES = {
     'scrapy_deltafetch.DeltaFetch': 100,
 }
 
 DELTAFETCH_ENABLED = True
 DELTAFETCH_DIR = ROOT_DIR / 'deltafetch'
+DELTAFETCH_DIR.mkdir(parents=True, exist_ok=True)
 
 DOWNLOADER_MIDDLEWARES = {
     'scrapy.downloadermiddlewares.httpcache.HttpCacheMiddleware': 500
