@@ -23,10 +23,19 @@ class CSVPipeline:
         # if we are restarting the crawl, then reset the export file as well
         self.file = (
             open(filepath, "a+b")
-            if spider.settings.get("DELTAFETCH_RESET", 0) == 0
+            if spider.settings.get("DELTAFETCH_RESET", 0) == 0 and spider.settings.get("DELTAFETCH_ENABLED", 1) == 1
             else open(filepath, "w+b")
         )
-        self.exporter = CsvItemExporter(self.file, fields_to_export=self.fields)
+        
+        # Create a header if a file does not have one. Write-only should always
+        # create one. Append should create only if there is nothing in the first
+        # line. Thus checking the first line in both cases should work.
+        include_headers_line = not bool(self.file.readline())
+        self.exporter = CsvItemExporter(
+            self.file,
+            include_headers_line=include_headers_line,
+            fields_to_export=self.fields,
+        )
         self.exporter.start_exporting()
 
     def spider_closed(self, spider):
